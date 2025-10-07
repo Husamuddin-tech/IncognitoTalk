@@ -1,27 +1,160 @@
 'use client';
 
-import { useSession, signIn, signOut } from 'next-auth/react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import Link from 'next/link';
+import { useState } from 'react';
+// import { useDebounceCallback } from 'usehooks-ts';
+import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { signInSchema } from '@/schemas/signInSchema';
+// import axios, { AxiosError } from 'axios';
+// import { ApiResponse } from '@/types/ApiResponse';
+import { LoaderIcon } from 'lucide-react';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { signIn } from 'next-auth/react';
 
-export default function Component() {
-  const { data: session } = useSession();
-  if (session) {
-    return (
-      <>
-        Signed in as {session.user.email} <br />
-        <button onClick={() => signOut()}>Sign out</button>
-      </>
-    );
-  }
+const SignIn = () => {
+  const [isSubmitting] = useState(false);
+  const router = useRouter();
+
+  // toast("Event has been created.")
+
+  // zod implementation
+  const form = useForm<z.infer<typeof signInSchema>>({
+    resolver: zodResolver(signInSchema),
+    defaultValues: {
+      identifier: '',
+      password: '',
+    },
+  });
+
+  const onSubmit = async (data: z.infer<typeof signInSchema>) => {
+    const result = await signIn('credentials', {
+      redirect: false,
+      email: data.identifier,
+      password: data.password
+    })
+
+    if(result?.error) {
+      if(result?.error == 'CredentialsSignin'){
+        toast(
+        <div>
+          <strong className="text-red-600">Login Failed</strong>
+          <div>Incorrect email/username or password</div>
+        </div>
+      )
+      } else {
+        toast(
+        <div>
+          <strong className="text-red-600">Error</strong>
+          <div>{result.error}</div>
+        </div>
+      )
+      }
+    } 
+    if(result?.url) {
+      router.replace('/dashboard')
+    }
+    
+  };
+
   return (
-    <>
-  Not signed in <br />
-  <button
-    className="bg-amber-500 text-white font-medium px-5 py-2 rounded-full shadow-md hover:bg-amber-600 transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-amber-400"
-    onClick={() => signIn()}
-  >
-    Sign in
-  </button>
-</>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-black text-green-400 font-mono p-6">
+      <div className="bg-black/80 border border-green-400 p-10 rounded-lg shadow-[0_0_20px_rgba(0,255,0,0.6)] animate-flicker w-full max-w-md">
+        {/* Header */}
+        <div className="space-y-4 text-center mb-6">
+          <h1 className="text-4xl md:text-6xl font-bold uppercase tracking-widest text-green-400 drop-shadow-[0_0_10px_rgba(0,255,0,0.8)] animate-pulse">
+            Join Incognito Talk
+          </h1>
+          <p className="text-lg md:text-2xl text-green-300 animate-flicker">
+            Sign In to start your Incognito Adventure
+          </p>
+        </div>
 
+        {/* Form */}
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      
+            <FormField
+              control={form.control}
+              name="identifier"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-green-300">Email/Username</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="email/username"
+                      {...field}
+                      className="bg-black/70 border border-green-400 text-green-400 placeholder-green-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-1"
+                    />
+                  </FormControl>
+                  <FormMessage className="text-red-600" />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-green-300">Password</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="password"
+                      placeholder="password required"
+                      {...field}
+                      className="bg-black/70 border border-green-400 text-green-400 placeholder-green-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-1"
+                    />
+                  </FormControl>
+                  <FormMessage className="text-red-600" />
+                </FormItem>
+              )}
+            />
+
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              className="w-full bg-black border border-green-400 text-green-400 hover:bg-green-900/20 hover:shadow-[0_0_15px_rgba(0,255,0,0.7)] rounded-md py-2 font-mono transition-all duration-200 flex items-center justify-center gap-2"
+            >
+              {isSubmitting ? (
+                <>
+                  <LoaderIcon className="animate-spin text-green-400" /> Please
+                  Wait
+                </>
+              ) : (
+                'Sign In'
+              )}
+            </Button>
+          </form>
+        </Form>
+
+        {/* Footer */}
+        <div className="mt-6 text-center">
+          <p className="text-green-300 text-sm">
+            Not a Member?{' '}
+            <Link
+              href={'/sign-up'}
+              className="text-green-400 hover:text-green-500 underline"
+            >
+              Sign Up
+            </Link>
+          </p>
+        </div>
+      </div>
+    </div>
   );
-}
+};
+
+export default SignIn;
