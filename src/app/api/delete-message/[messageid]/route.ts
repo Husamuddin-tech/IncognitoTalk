@@ -7,10 +7,10 @@ import mongoose from "mongoose";
 
 export async function DELETE(
   request: Request,
-  context: { params: Promise<{ messageid: string }> } // keep as context
+  context: { params: { messageid: string } } // keep as context
 ) {
   // ✅ Unwrap params promise
-  const { messageid } = await context.params;
+  const { messageid } = context.params;
 
   await dbConnect();
 
