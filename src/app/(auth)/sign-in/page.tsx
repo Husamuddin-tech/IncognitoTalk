@@ -1,36 +1,26 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import Link from 'next/link';
-import { useState } from 'react';
-// import { useDebounceCallback } from 'usehooks-ts';
-import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
-import { signInSchema } from '@/schemas/signInSchema';
-// import axios, { AxiosError } from 'axios';
-// import { ApiResponse } from '@/types/ApiResponse';
-import { LoaderIcon } from 'lucide-react';
+import * as z from 'zod';
+import { signIn } from 'next-auth/react';
 import {
   Form,
-  FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { signIn } from 'next-auth/react';
+import { Input } from '@/components/ui/input';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
+import { signInSchema } from '@/schemas/signInSchema';
 
-const SignIn = () => {
-  const [isSubmitting] = useState(false);
+export default function SignInForm() {
   const router = useRouter();
 
-  // toast("Event has been created.")
-
-  // zod implementation
   const form = useForm<z.infer<typeof signInSchema>>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
@@ -42,29 +32,19 @@ const SignIn = () => {
   const onSubmit = async (data: z.infer<typeof signInSchema>) => {
     const result = await signIn('credentials', {
       redirect: false,
-      email: data.identifier,
+      identifier: data.identifier,
       password: data.password
     })
 
-    if(result?.error) {
-      if(result?.error == 'CredentialsSignin'){
-        toast(
-        <div>
-          <strong className="text-red-600">Login Failed</strong>
-          <div>Incorrect email/username or password</div>
-        </div>
-      )
+    if (result?.error) {
+      if (result.error === 'CredentialsSignin') {
+        toast('Login Failed: Incorrect username or password');
       } else {
-        toast(
-        <div>
-          <strong className="text-red-600">Error</strong>
-          <div>{result.error}</div>
-        </div>
-      )
-      }
-    } 
-    if(result?.url) {
-      router.replace('/dashboard')
+        toast(`Error: ${result.error}`);
+    }
+    }
+    if (result?.url) {
+      router.replace('/dashboard');
     }
     
   };
@@ -92,13 +72,11 @@ const SignIn = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-green-300">Email/Username</FormLabel>
-                  <FormControl>
                     <Input
                       placeholder="email/username"
                       {...field}
                       className="bg-black/70 border border-green-400 text-green-400 placeholder-green-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-1"
                     />
-                  </FormControl>
                   <FormMessage className="text-red-600" />
                 </FormItem>
               )}
@@ -110,14 +88,12 @@ const SignIn = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-green-300">Password</FormLabel>
-                  <FormControl>
                     <Input
                       type="password"
                       placeholder="password required"
                       {...field}
                       className="bg-black/70 border border-green-400 text-green-400 placeholder-green-600 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-1"
                     />
-                  </FormControl>
                   <FormMessage className="text-red-600" />
                 </FormItem>
               )}
@@ -125,17 +101,9 @@ const SignIn = () => {
 
             <Button
               type="submit"
-              disabled={isSubmitting}
               className="w-full bg-black border border-green-400 text-green-400 hover:bg-green-900/20 hover:shadow-[0_0_15px_rgba(0,255,0,0.7)] rounded-md py-2 font-mono transition-all duration-200 flex items-center justify-center gap-2"
             >
-              {isSubmitting ? (
-                <>
-                  <LoaderIcon className="animate-spin text-green-400" /> Please
-                  Wait
-                </>
-              ) : (
-                'Sign In'
-              )}
+              Sign In
             </Button>
           </form>
         </Form>
@@ -157,4 +125,4 @@ const SignIn = () => {
   );
 };
 
-export default SignIn;
+

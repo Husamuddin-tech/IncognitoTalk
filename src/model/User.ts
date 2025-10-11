@@ -6,7 +6,7 @@ export interface Message extends Document {
     createdAt: Date;
 }
 
-const MessageSchema: Schema<Message> = new Schema({
+const MessageSchema: Schema<Message> = new mongoose.Schema({
     content: {
         type: String,
         required: true
@@ -20,6 +20,7 @@ const MessageSchema: Schema<Message> = new Schema({
 
 
 export interface User extends Document {
+    _id: string;
     username: string;
     email: string;
     password: string;

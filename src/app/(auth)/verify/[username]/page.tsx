@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { verifySchema } from '@/schemas/verifySchema';
 import { ApiResponse } from '@/types/ApiResponse';
@@ -29,8 +29,8 @@ const VerifyAccount = () => {
                 username: params.username,
                 code: data.code
             })
-            router.replace('/sign-in')
             toast(`Success: ${response.data.message}`)
+            router.replace('/sign-in')
         } catch(error) {
             console.log('Error in signup of user', error);
                   const axiosError = error as AxiosError<ApiResponse>;
@@ -63,14 +63,12 @@ const VerifyAccount = () => {
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-green-300">Verification Code</FormLabel>
-              <FormControl>
                 <Input
                   type='text'
                   placeholder="Enter verification code"
                   {...field}
                   className="bg-black/60 border border-green-400 text-green-400 placeholder-green-700 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2 w-full transition-all"
                 />
-              </FormControl>
               <FormMessage className="text-red-500" />
             </FormItem>
           )}
@@ -79,7 +77,7 @@ const VerifyAccount = () => {
           type="submit"
           className="w-full bg-green-500 hover:bg-green-600 text-black font-semibold py-2 rounded-md shadow-[0_0_10px_rgba(0,255,0,0.8)] hover:shadow-[0_0_20px_rgba(0,255,0,1)] transition-all duration-300"
         >
-          Submit
+          Verify
         </Button>
       </form>
     </Form>

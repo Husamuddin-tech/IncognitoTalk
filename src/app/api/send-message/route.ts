@@ -9,7 +9,7 @@ export async function POST(request: Request) {
     const { username, content } = await request.json();
 
     try {
-        const user = await UserModel.findOne({username})
+        const user = await UserModel.findOne({username}).exec()
 
         if(!user){
             return Response.json(
@@ -26,11 +26,13 @@ export async function POST(request: Request) {
                 {
                     success: false,
                     message: "User not accepting messages"
-                }, {status: 403}
+                }, {status: 403} // 403 Forbidden status
             )
         }
 
         const newMessage = {content, createdAt: new Date()}
+
+        // Push the new message to the user's messages array
         user.messages.push(newMessage as Message)
         await user.save()
 
