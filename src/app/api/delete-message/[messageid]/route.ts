@@ -9,9 +9,8 @@ export async function DELETE(
   request: Request,
   context: { params: Promise<{ messageid: string }> } // keep as context
 ) {
-  // Await params before using
-  const params = await context.params;
-  const messageid = params.messageid;
+  // ✅ Unwrap params promise
+  const { messageid } = await context.params;
 
   await dbConnect();
 
