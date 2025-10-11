@@ -2,15 +2,15 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/model/User";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import mongoose from "mongoose";
 
+
 export async function DELETE(
-  request: Request,
-  context: { params: { messageid: string } } // keep as context
+  request: NextRequest,
+  context: { params: Promise<{ messageid: string }> } // App Router expects params as Promise
 ) {
-  // ✅ Unwrap params promise
-  const { messageid } = context.params;
+  const { messageid } = await context.params; // unwrap the promise
 
   await dbConnect();
 
@@ -53,6 +53,7 @@ export async function DELETE(
     );
   }
 }
+
 
 
 

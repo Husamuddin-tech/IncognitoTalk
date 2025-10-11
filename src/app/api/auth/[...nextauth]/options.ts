@@ -21,7 +21,7 @@ export const authOptions: NextAuthOptions = {
         identifier: { label: "Email", type: "text", placeholder: "john@example.com" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials, req) {
+      async authorize(credentials) {
         if (!credentials) return null;
 
         await dbConnect();
